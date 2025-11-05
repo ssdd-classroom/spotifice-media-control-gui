@@ -6,7 +6,7 @@ Graphical media control for Spotifice, implemented with GTK4 and ZeroC Ice.
 
 ## Description
 
-This project provides a graphical user interface (GUI) to access Spotifice services. The application allows you to manage playlists, play music, and control playback in a visual and intuitive way.
+This repository provides a graphical user interface (GUI) to access Spotifice services. The application allows you to manage playlists, play music, and control playback in a visual and intuitive way.
 
 ## Features
 
@@ -18,7 +18,7 @@ This project provides a graphical user interface (GUI) to access Spotifice servi
 
 ## Architecture
 
-The project uses **ZeroC Ice** as distributed communication middleware, implementing a client-server architecture:
+The program uses **ZeroC Ice** as distributed communication middleware, implementing a client-server architecture:
 
 ## Configuration
 
@@ -42,7 +42,7 @@ MediaRender.Proxy=mediaRender1:tcp -p 10001
 Install system dependencies (Ubuntu/Debian)
 
 ```bash
-$ sudo apt install python3-zeroc-ice python3-gi python3-gi-cairo gir1.2-gtk-4.0
+sudo apt install python3-zeroc-ice python3-gi python3-gi-cairo gir1.2-gtk-4.0
 ```
 
 ## Usage
