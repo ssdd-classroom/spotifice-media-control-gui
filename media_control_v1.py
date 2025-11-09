@@ -65,6 +65,7 @@ class UIBuilder:
         self.play_button = None
         self.pause_button = None
         self.stop_button = None
+        self.repeat_button = None
         self.track_label = None
         self.status_label = None
 
@@ -112,11 +113,16 @@ class UIBuilder:
         next_button = self._create_button(
             "media-skip-forward", "Next", callbacks['next'])
 
+        self.repeat_button = self._create_toggle_button(
+            "media-playlist-repeat", "Repeat", callbacks['repeat']
+        )
+
         self.controls_box.append(prev_button)
         self.controls_box.append(self.play_button)
         self.controls_box.append(self.pause_button)
         self.controls_box.append(self.stop_button)
         self.controls_box.append(next_button)
+        self.controls_box.append(self.repeat_button)
         return self
 
     def _create_button(self, icon_name, tooltip, callback):
@@ -125,6 +131,14 @@ class UIBuilder:
         button.get_child().set_icon_size(Gtk.IconSize.LARGE)
         button.set_tooltip_text(tooltip)
         button.connect("clicked", callback)
+        return button
+
+    def _create_toggle_button(self, icon_name, tooltip, callback):
+        button = Gtk.ToggleButton()
+        button.set_child(Gtk.Image.new_from_icon_name(icon_name))
+        button.get_child().set_icon_size(Gtk.IconSize.LARGE)
+        button.set_tooltip_text(tooltip)
+        button.connect("toggled", callback)
         return button
 
     def build_track_display(self):
@@ -174,6 +188,7 @@ class UIBuilder:
             'play_button': self.play_button,
             'pause_button': self.pause_button,
             'stop_button': self.stop_button,
+            'repeat_button': self.repeat_button,
             'track_label': self.track_label,
             'status_label': self.status_label,
         }
@@ -210,6 +225,7 @@ class SpotificeControlWindow(Gtk.ApplicationWindow):
             'stop': self.on_stop,
             'previous': self.on_previous,
             'next': self.on_next,
+            'repeat': self.on_repeat,
         }
 
         builder = UIBuilder()
@@ -226,6 +242,7 @@ class SpotificeControlWindow(Gtk.ApplicationWindow):
         self.play_button = ui['play_button']
         self.pause_button = ui['pause_button']
         self.stop_button = ui['stop_button']
+        self.repeat_button = ui['repeat_button']
         self.track_label = ui['track_label']
         self.status_label = ui['status_label']
 
@@ -236,6 +253,8 @@ class SpotificeControlWindow(Gtk.ApplicationWindow):
         self.playlist_ids = []
 
         self.set_child(ui['main_box'])
+        # flag to avoid triggering handlers while updating UI programmatically
+        self._updating_ui = False
 
     def load_initial_state(self):
         try:
@@ -259,6 +278,7 @@ class SpotificeControlWindow(Gtk.ApplicationWindow):
 
         self.update_status(status_message)
         self.update_button_states(status.state)
+        self.update_repeat_button(status.repeat)
 
     def update_status(self, message):
         self.status_label.set_text(message)
@@ -275,6 +295,14 @@ class SpotificeControlWindow(Gtk.ApplicationWindow):
                 self.pause_button.add_css_class("suggested-action")
             case Spotifice.PlaybackState.STOPPED:
                 self.stop_button.add_css_class("suggested-action")
+
+    def update_repeat_button(self, is_active: bool):
+        # Avoid recursive signal handling
+        self._updating_ui = True
+        try:
+            self.repeat_button.set_active(bool(is_active))
+        finally:
+            self._updating_ui = False
 
     def update_current_track(self):
         if self.track_animation_timeout is not None:
@@ -389,6 +417,14 @@ class SpotificeControlWindow(Gtk.ApplicationWindow):
         self.update_status("Next track")
         self.update_current_track()
 
+    @handle_action_error
+    def on_repeat(self, button):
+        if getattr(self, "_updating_ui", False):
+            return
+        is_active = bool(button.get_active())
+        self.render.set_repeat(is_active)
+        self.update_status("Repeat On" if is_active else "Repeat Off")
+
 
 class SpotificeApp(Gtk.Application):
     def __init__(self, communicator):
@@ -405,7 +441,7 @@ class SpotificeApp(Gtk.Application):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        sys.exit("Usage: media_control_v1_gtk.py <config-file>")
+        sys.exit("Usage: media_control_v1.py <config-file>")
 
     with Ice.initialize(sys.argv[1]) as communicator:
         app = SpotificeApp(communicator)

@@ -12,6 +12,7 @@ This repository provides a graphical user interface (GUI) to access Spotifice se
 
 - 🎵 **Playlist Management**: Dropdown selector to switch between different playlists.
 - ▶️ **Playback Controls**: Buttons for Play, Pause, Stop, Previous, and Next.
+- 🔁 **Repeat Toggle**: Toggle repeat mode on/off for continuous playback.
 - 🎼 **Track Display**: Shows the current song title with scrolling animation for long titles.
 - 🔌 **MPRIS2 Integration**: Support for system media control on Linux (optional).
 - 🎨 **GTK4 Interface**: Modern and responsive UI built with GTK 4.
