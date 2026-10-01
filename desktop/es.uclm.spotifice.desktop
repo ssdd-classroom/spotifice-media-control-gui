@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Spotifice Control
+Comment=Control Spotifice playlists and playback
+Exec=spotifice-control
+TryExec=spotifice-control
+Icon=es.uclm.spotifice
+Terminal=false
+Categories=AudioVideo;Player;
+StartupNotify=true
+StartupWMClass=es.uclm.spotifice
+DBusActivatable=false
